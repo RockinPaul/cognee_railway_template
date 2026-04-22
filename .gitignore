@@ -1,0 +1,21 @@
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Local project artifacts
+.sisyphus/
+.openclaw/
+.opencode/
+.anon_id
+.pytest_cache/
+.venv/
+cognee/.cognee_system/
+*.log
+
+# Editor directories
+.vscode/
+.idea/
+*.swp
+*.swo

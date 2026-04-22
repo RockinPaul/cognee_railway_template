@@ -1,0 +1,140 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "name": "Cognee AI Memory Platform",
+  "description": "Deploy Cognee MCP on Railway in direct mode with managed Postgres + pgvector. The public MCP service talks directly to Postgres and is preconfigured for OpenRouter using Gemma 4 26B A4B IT for LLM tasks and Gemini Embedding 2 Preview for embeddings.",
+  "services": [
+    {
+      "name": "cognee-mcp",
+      "build": {
+        "dockerfilePath": "Dockerfile.mcp"
+      },
+      "deploy": {
+        "healthcheckPath": "/health",
+        "healthcheckTimeout": 240,
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 3
+      },
+      "networking": {
+        "internal": false,
+        "tcpProxies": {},
+        "serviceDomains": {}
+      },
+      "variables": {
+        "LLM_API_KEY": {
+          "description": "Your OpenRouter API key. Cognee uses it for the OpenRouter LLM and, by default, for embeddings too.",
+          "required": true
+        },
+        "LLM_PROVIDER": {
+          "description": "Cognee LLM provider for OpenRouter's OpenAI-compatible API",
+          "default": "custom"
+        },
+        "LLM_ENDPOINT": {
+          "description": "OpenRouter OpenAI-compatible API base URL for chat/completions",
+          "default": "https://openrouter.ai/api/v1"
+        },
+        "LLM_MODEL": {
+          "description": "Primary OpenRouter model for extraction, graph building, and responses",
+          "default": "openrouter/google/gemma-4-26b-a4b-it"
+        },
+        "LLM_INSTRUCTOR_MODE": {
+          "description": "Structured-output mode for the OpenRouter-backed LLM adapter",
+          "default": "json_schema_mode"
+        },
+        "EMBEDDING_PROVIDER": {
+          "description": "Embedding provider for semantic indexing",
+          "default": "litellm"
+        },
+        "EMBEDDING_ENDPOINT": {
+          "description": "OpenRouter OpenAI-compatible API base URL for embeddings",
+          "default": "https://openrouter.ai/api/v1"
+        },
+        "EMBEDDING_MODEL": {
+          "description": "OpenRouter embedding model for semantic indexing",
+          "default": "openrouter/google/gemini-embedding-2-preview"
+        },
+        "EMBEDDING_DIMENSIONS": {
+          "description": "Embedding vector dimensions for Gemini Embedding 2 Preview",
+          "default": "3072"
+        },
+        "EMBEDDING_API_KEY": {
+          "description": "Optional separate OpenRouter API key for embeddings. Leave empty to reuse LLM_API_KEY.",
+          "default": ""
+        },
+        "DB_PROVIDER": {
+          "description": "Database provider for Cognee direct mode",
+          "default": "postgres"
+        },
+        "GRAPH_DATABASE_URL": {
+          "description": "Postgres connection string for graph persistence in direct mode",
+          "default": "postgresql+asyncpg://${{postgres.PGUSER}}:${{postgres.PGPASSWORD}}@${{postgres.PGHOST}}:${{postgres.PGPORT}}/${{postgres.PGDATABASE}}"
+        },
+        "GRAPH_DATABASE_HOST": {
+          "default": "${{postgres.PGHOST}}"
+        },
+        "GRAPH_DATABASE_PORT": {
+          "default": "${{postgres.PGPORT}}"
+        },
+        "GRAPH_DATABASE_USERNAME": {
+          "default": "${{postgres.PGUSER}}"
+        },
+        "GRAPH_DATABASE_PASSWORD": {
+          "default": "${{postgres.PGPASSWORD}}"
+        },
+        "DB_HOST": {
+          "default": "${{postgres.PGHOST}}"
+        },
+        "DB_PORT": {
+          "default": "${{postgres.PGPORT}}"
+        },
+        "DB_USERNAME": {
+          "default": "${{postgres.PGUSER}}"
+        },
+        "DB_PASSWORD": {
+          "default": "${{postgres.PGPASSWORD}}"
+        },
+        "DB_NAME": {
+          "default": "${{postgres.PGDATABASE}}"
+        },
+        "VECTOR_DB_PROVIDER": {
+          "description": "Vector database provider",
+          "default": "pgvector"
+        },
+        "VECTOR_DB_URL": {
+          "default": "postgresql://${{postgres.PGUSER}}:${{postgres.PGPASSWORD}}@${{postgres.PGHOST}}:${{postgres.PGPORT}}/${{postgres.PGDATABASE}}"
+        },
+        "VECTOR_DB_HOST": {
+          "default": "${{postgres.PGHOST}}"
+        },
+        "VECTOR_DB_PORT": {
+          "default": "${{postgres.PGPORT}}"
+        },
+        "VECTOR_DB_USERNAME": {
+          "default": "${{postgres.PGUSER}}"
+        },
+        "VECTOR_DB_PASSWORD": {
+          "default": "${{postgres.PGPASSWORD}}"
+        },
+        "VECTOR_DATASET_DATABASE_HANDLER": {
+          "description": "Dataset handler aligned with the pgvector backend",
+          "default": "pgvector"
+        },
+        "GRAPH_DATABASE_PROVIDER": {
+          "description": "Graph database provider for single-user deployments",
+          "default": "postgres"
+        },
+        "ENABLE_BACKEND_ACCESS_CONTROL": {
+          "description": "Disable multi-user dataset isolation for a simpler single-user memory deployment",
+          "default": "false"
+        },
+        "TRANSPORT_MODE": {
+          "description": "Cognee MCP transport for remote clients. HTTP exposes the server at /mcp.",
+          "default": "http"
+        }
+      }
+    },
+    {
+      "name": "postgres",
+      "plugin": "postgresql"
+    }
+  ]
+}
