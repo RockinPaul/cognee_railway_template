@@ -9,9 +9,12 @@ __pycache__/
 .openclaw/
 .opencode/
 .anon_id
+.omc/
+.playwright-mcp/
 .pytest_cache/
 .venv/
 cognee/.cognee_system/
+cognee/.data_storage/
 *.log
 
 # Editor directories

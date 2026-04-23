@@ -289,7 +289,7 @@ Agent: "Here's how senior analysts solved a similar retention query.
 
 ## Deploy Cognee
 
-> **Note:** This repository is a deployment-focused fork of [topoteretes/cognee](https://github.com/topoteretes/cognee) optimized for Railway. It includes `railway.toml`, `railway-template.json`, and `Dockerfile.mcp` in the root so Railway can provision a public `cognee-mcp` service in direct mode alongside managed Postgres. For full documentation, examples, and community resources, see the upstream repository.
+> **Note:** This repository is a deployment-focused fork of [topoteretes/cognee](https://github.com/topoteretes/cognee) optimized for Railway. It includes `railway.toml`, `railway-template.json`, and `Dockerfile.mcp` in the root so Railway can provision the documented production shape: a private `cognee-api` backend, a public `cognee-mcp` service in API/SSE mode, and managed Postgres. For full documentation, examples, and community resources, see the upstream repository.
 
 Use [Cognee Cloud](https://www.cognee.ai) for a fully managed experience, or self-host with one of the 1-click deployment configurations below.
 
@@ -308,10 +308,11 @@ See the [`distributed/`](distributed/) folder for deploy scripts, worker configu
 
 The Railway template deploys:
 
-- `cognee-mcp` for the public MCP endpoint in direct mode
+- `cognee-api` as the private Cognee backend
+- `cognee-mcp` as the public MCP service in API/SSE mode
 - `postgres` for the relational, graph, and vector data stores
 
-After deployment, point OpenCode or another MCP client at the public `cognee-mcp` domain with the `/mcp` suffix:
+After deployment, point OpenCode or another MCP client at the public `cognee-mcp` domain with the `/sse` suffix:
 
 ```json
 {
@@ -319,7 +320,7 @@ After deployment, point OpenCode or another MCP client at the public `cognee-mcp
   "mcp": {
     "cognee": {
       "type": "remote",
-      "url": "https://<cognee-mcp-service>.up.railway.app/mcp",
+      "url": "https://<cognee-mcp-service>.up.railway.app/sse",
       "enabled": true,
       "oauth": false
     }
@@ -327,7 +328,83 @@ After deployment, point OpenCode or another MCP client at the public `cognee-mcp
 }
 ```
 
-The `cognee-mcp` service runs Cognee directly against Railway Postgres, so there is no separate API hop and no `cognee-api` public URL to configure.
+The `cognee-mcp` service talks to the private `cognee-api` service over Railway internal networking using `API_URL=http://cognee-api.railway.internal:8000`, matching the documented production setup.
+
+### Railway Safe Environment Policy
+
+Use private Railway networking for all service-to-service communication inside the same Railway project and environment.
+
+Use internal/private values for:
+
+- `DB_HOST`
+- `GRAPH_DATABASE_HOST`
+- `VECTOR_DB_HOST`
+- `GRAPH_DATABASE_URL`
+- `VECTOR_DB_URL`
+- `API_URL` from `cognee-mcp` to `cognee-api`
+
+Preferred internal hosts:
+
+- `postgres.railway.internal`
+- `cognee-api.railway.internal`
+- `cognee-mcp.railway.internal`
+
+Use public values only for:
+
+- end-user and client connections
+- OpenCode / Claude Code / MCP client configuration
+- local debugging from outside Railway
+- direct laptop access to Postgres via Railway TCP proxy
+
+Public-only examples:
+
+- `RAILWAY_PUBLIC_DOMAIN`
+- `RAILWAY_STATIC_URL`
+- `RAILWAY_SERVICE_COGNEE_API_URL`
+- `RAILWAY_SERVICE_COGNEE_MCP_URL`
+- `SERVE_URL`
+- `DATABASE_PUBLIC_URL`
+- `RAILWAY_TCP_PROXY_DOMAIN`
+- `RAILWAY_TCP_PROXY_PORT`
+
+Do not use public proxy/database URLs for internal runtime traffic between Railway services. They are slower and may incur egress/network charges.
+
+### Railway Template Summary
+
+Template name:
+
+- `Cognee AI Memory Platform`
+
+Short description:
+
+- Deploy Cognee on Railway with a private backend API, a public MCP service in API/SSE mode, and managed Postgres + pgvector.
+
+What the template provisions:
+
+- `cognee-api` backend service
+- `cognee-mcp` public MCP service
+- `postgres` managed database
+
+What users must provide:
+
+- `LLM_API_KEY`
+- optionally `EMBEDDING_API_KEY` if they do not want to reuse `LLM_API_KEY`
+
+Default model choice:
+
+- `openrouter/openai/gpt-4o-mini` is the reliable default for full Cognify pipelines
+- `openrouter/google/gemma-4-26b-a4b-it` can still be used as an advanced override, but it is not the publishable default
+
+### Final Publish Checklist
+
+- `cognee-api /health` returns `200`
+- `cognee-mcp /health` returns `200`
+- `cognee-mcp /sse` returns `200`
+- login works on the backend
+- `add -> cognify -> search` works on a fresh dataset
+- Postgres shows dataset persistence and nonzero graph data
+- OpenCode connects to the MCP server successfully
+- OpenCode can execute a real Cognee tool call successfully
 
 ## Latest News
 

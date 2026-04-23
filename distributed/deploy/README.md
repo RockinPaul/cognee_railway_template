@@ -61,6 +61,16 @@ Use the Railway template in `distributed/deploy/railway-template.json` to create
 - PostgreSQL with pgvector
 - Auto-wired environment variables
 
+For a production MCP deployment, use the root `railway-template.json` in this repository. It provisions the documented production shape:
+- `cognee-api` as the private backend API
+- `cognee-mcp` as the public MCP service in API/SSE mode
+- `postgres` as the shared relational, graph, and vector store
+
+In that production shape:
+- external MCP clients connect to `https://<cognee-mcp-service>.up.railway.app/sse`
+- `cognee-mcp` talks to `cognee-api` over Railway internal networking
+- all database connections stay on Railway private domains rather than public TCP proxy URLs
+
 **Cost**: ~$5/mo hobby tier.
 
 ---

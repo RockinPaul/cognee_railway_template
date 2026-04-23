@@ -20,11 +20,16 @@ def test_cognee_mcp_service_targets_api_mode() -> None:
 
     services = {service["name"]: service for service in template["services"]}
     mcp_service = services["cognee-mcp"]
+    assert "cognee-api" in services
 
     assert mcp_service["build"]["dockerfilePath"] == "Dockerfile.mcp"
     assert mcp_service["deploy"]["healthcheckPath"] == "/health"
-    assert mcp_service["variables"]["TRANSPORT_MODE"]["default"] == "http"
+    assert mcp_service["variables"]["TRANSPORT_MODE"]["default"] == "sse"
     assert (
         mcp_service["variables"]["API_URL"]["default"]
-        == "http://${{cognee-api.RAILWAY_PRIVATE_DOMAIN}}"
+        == "http://${{cognee-api.RAILWAY_PRIVATE_DOMAIN}}:8080"
+    )
+    assert (
+        mcp_service["variables"]["MCP_ALLOWED_HOSTS"]["default"]
+        == "${{cognee-mcp.RAILWAY_PUBLIC_DOMAIN}},${{cognee-mcp.RAILWAY_PUBLIC_DOMAIN}}:*"
     )

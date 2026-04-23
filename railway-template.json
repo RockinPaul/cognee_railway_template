@@ -1,12 +1,12 @@
 {
   "$schema": "https://railway.app/railway.schema.json",
   "name": "Cognee AI Memory Platform",
-  "description": "Deploy Cognee MCP on Railway in direct mode with managed Postgres + pgvector. The public MCP service talks directly to Postgres and is preconfigured for OpenRouter using Gemma 4 26B A4B IT for LLM tasks and Gemini Embedding 2 Preview for embeddings.",
+  "description": "Deploy Cognee on Railway in the documented production shape: a private Cognee backend API, a public Cognee MCP service in API/SSE mode, and managed Postgres + pgvector. The default LLM is OpenRouter GPT-4o-mini with Gemini Embedding 2 Preview for embeddings, tuned for a reliable single-user memory deployment.",
   "services": [
     {
-      "name": "cognee-mcp",
+      "name": "cognee-api",
       "build": {
-        "dockerfilePath": "Dockerfile.mcp"
+        "dockerfilePath": "Dockerfile"
       },
       "deploy": {
         "healthcheckPath": "/health",
@@ -33,8 +33,8 @@
           "default": "https://openrouter.ai/api/v1"
         },
         "LLM_MODEL": {
-          "description": "Primary OpenRouter model for extraction, graph building, and responses",
-          "default": "openrouter/google/gemma-4-26b-a4b-it"
+          "description": "Reliable default OpenRouter model for Cognify extraction, summarization, and responses. Gemma can still be used as an advanced override.",
+          "default": "openrouter/openai/gpt-4o-mini"
         },
         "LLM_INSTRUCTOR_MODE": {
           "description": "Structured-output mode for the OpenRouter-backed LLM adapter",
@@ -61,11 +61,11 @@
           "default": ""
         },
         "DB_PROVIDER": {
-          "description": "Database provider for Cognee direct mode",
+          "description": "Database provider",
           "default": "postgres"
         },
         "GRAPH_DATABASE_URL": {
-          "description": "Postgres connection string for graph persistence in direct mode",
+          "description": "Postgres connection string for graph persistence in single-user mode",
           "default": "postgresql+asyncpg://${{postgres.PGUSER}}:${{postgres.PGPASSWORD}}@${{postgres.PGHOST}}:${{postgres.PGPORT}}/${{postgres.PGDATABASE}}"
         },
         "GRAPH_DATABASE_HOST": {
@@ -126,9 +126,86 @@
           "description": "Disable multi-user dataset isolation for a simpler single-user memory deployment",
           "default": "false"
         },
+        "REQUIRE_AUTHENTICATION": {
+          "description": "Disable API auth for a single-user MCP-backed deployment",
+          "default": "false"
+        },
+        "HOST": {
+          "default": "0.0.0.0"
+        },
+        "ENVIRONMENT": {
+          "default": "prod"
+        },
+        "CORS_ALLOWED_ORIGINS": {
+          "description": "Comma-separated allowed CORS origins",
+          "default": "*"
+        }
+      }
+    },
+    {
+      "name": "cognee-mcp",
+      "build": {
+        "dockerfilePath": "Dockerfile.mcp"
+      },
+      "deploy": {
+        "healthcheckPath": "/health",
+        "healthcheckTimeout": 240,
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 3
+      },
+      "networking": {
+        "internal": false,
+        "tcpProxies": {},
+        "serviceDomains": {}
+        },
+        "variables": {
         "TRANSPORT_MODE": {
-          "description": "Cognee MCP transport for remote clients. HTTP exposes the server at /mcp.",
-          "default": "http"
+          "description": "Cognee MCP transport for remote clients. In production API mode, SSE exposes the server at /sse.",
+          "default": "sse"
+        },
+        "API_URL": {
+          "description": "Internal Cognee backend URL used by the MCP service in API mode",
+          "default": "http://${{cognee-api.RAILWAY_PRIVATE_DOMAIN}}:8080"
+        },
+        "MCP_ALLOWED_HOSTS": {
+          "description": "Comma-separated public hosts allowed by MCP transport security for SSE access",
+          "default": "${{cognee-mcp.RAILWAY_PUBLIC_DOMAIN}},${{cognee-mcp.RAILWAY_PUBLIC_DOMAIN}}:*"
+        },
+        "LLM_API_KEY": {
+          "description": "Your OpenRouter API key. The MCP service forwards Cognify and search requests to the backend.",
+          "required": true
+        },
+        "LLM_PROVIDER": {
+          "description": "Cognee LLM provider for OpenRouter's OpenAI-compatible API",
+          "default": "custom"
+        },
+        "LLM_ENDPOINT": {
+          "description": "OpenRouter OpenAI-compatible API base URL for chat/completions",
+          "default": "https://openrouter.ai/api/v1"
+        },
+        "LLM_MODEL": {
+          "description": "Reliable default OpenRouter model for Cognify extraction, summarization, and responses.",
+          "default": "openrouter/openai/gpt-4o-mini"
+        },
+        "EMBEDDING_PROVIDER": {
+          "description": "Embedding provider for semantic indexing on the backend",
+          "default": "litellm"
+        },
+        "EMBEDDING_ENDPOINT": {
+          "description": "OpenRouter OpenAI-compatible API base URL for embeddings",
+          "default": "https://openrouter.ai/api/v1"
+        },
+        "EMBEDDING_MODEL": {
+          "description": "OpenRouter embedding model for semantic indexing on the backend",
+          "default": "openrouter/google/gemini-embedding-2-preview"
+        },
+        "EMBEDDING_DIMENSIONS": {
+          "description": "Embedding vector dimensions for Gemini Embedding 2 Preview",
+          "default": "3072"
+        },
+        "EMBEDDING_API_KEY": {
+          "description": "Optional separate OpenRouter API key for embeddings. Leave empty to reuse LLM_API_KEY.",
+          "default": ""
         }
       }
     },
