@@ -1,5 +1,7 @@
 # Cognee Railway Deployment Template
 
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/SKKN1Y?referralCode=YqmMB-&utm_medium=integration&utm_source=template&utm_campaign=generic)
+
 This repository is a deployment-focused fork of [topoteretes/cognee](https://github.com/topoteretes/cognee) for Railway.
 
 It is intentionally trimmed to the files needed to:

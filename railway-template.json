@@ -187,40 +187,8 @@
           "description": "Comma-separated public hosts allowed by MCP transport security for SSE access",
           "value": "${{cognee-mcp.RAILWAY_PUBLIC_DOMAIN}},${{cognee-mcp.RAILWAY_PUBLIC_DOMAIN}}:*"
         },
-        "LLM_API_KEY": {
-          "description": "Your OpenRouter API key. The MCP service forwards Cognify and search requests to the backend.",
-          "value": ""
-        },
-        "LLM_PROVIDER": {
-          "description": "Cognee LLM provider for OpenRouter's OpenAI-compatible API",
-          "value": "custom"
-        },
-        "LLM_ENDPOINT": {
-          "description": "OpenRouter OpenAI-compatible API base URL for chat/completions",
-          "value": "https://openrouter.ai/api/v1"
-        },
-        "LLM_MODEL": {
-          "description": "Reliable default OpenRouter model for Cognify extraction, summarization, and responses.",
-          "value": "openrouter/openai/gpt-4o-mini"
-        },
-        "EMBEDDING_PROVIDER": {
-          "description": "Embedding provider for semantic indexing on the backend",
-          "value": "litellm"
-        },
-        "EMBEDDING_ENDPOINT": {
-          "description": "OpenRouter OpenAI-compatible API base URL for embeddings",
-          "value": "https://openrouter.ai/api/v1"
-        },
-        "EMBEDDING_MODEL": {
-          "description": "OpenRouter embedding model for semantic indexing on the backend",
-          "value": "openrouter/google/gemini-embedding-2-preview"
-        },
-        "EMBEDDING_DIMENSIONS": {
-          "description": "Embedding vector dimensions for Gemini Embedding 2 Preview",
-          "value": "3072"
-        },
-        "EMBEDDING_API_KEY": {
-          "description": "Optional separate OpenRouter API key for embeddings. Leave empty to reuse LLM_API_KEY.",
+        "API_TOKEN": {
+          "description": "Optional backend Bearer token used by the MCP service when cognee-api authentication is enabled.",
           "value": ""
         }
       }
