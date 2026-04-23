@@ -1,7 +1,7 @@
 {
   "$schema": "https://railway.app/railway.schema.json",
-  "name": "Cognee AI Memory Platform",
-  "description": "Deploy Cognee on Railway in the documented production shape: a private Cognee backend API, a public Cognee MCP service in API/SSE mode, and managed Postgres + pgvector. The default LLM is OpenRouter GPT-4o-mini with Gemini Embedding 2 Preview for embeddings, tuned for a reliable single-user memory deployment.",
+  "name": "Cognee AI Memory Platform with MCP",
+  "description": "Cognee backend API, MCP in API/SSE mode, and managed Postgres + pgvector.",
   "services": [
     {
       "name": "cognee-api",
@@ -69,30 +69,39 @@
           "default": "postgresql+asyncpg://${{postgres.PGUSER}}:${{postgres.PGPASSWORD}}@${{postgres.PGHOST}}:${{postgres.PGPORT}}/${{postgres.PGDATABASE}}"
         },
         "GRAPH_DATABASE_HOST": {
+          "description": "Private Railway hostname for the graph Postgres connection",
           "default": "${{postgres.PGHOST}}"
         },
         "GRAPH_DATABASE_PORT": {
+          "description": "Port for graph persistence in Postgres",
           "default": "${{postgres.PGPORT}}"
         },
         "GRAPH_DATABASE_USERNAME": {
+          "description": "Username for the graph Postgres connection",
           "default": "${{postgres.PGUSER}}"
         },
         "GRAPH_DATABASE_PASSWORD": {
+          "description": "Password for the graph Postgres connection",
           "default": "${{postgres.PGPASSWORD}}"
         },
         "DB_HOST": {
+          "description": "Private Railway hostname for the relational Postgres connection",
           "default": "${{postgres.PGHOST}}"
         },
         "DB_PORT": {
+          "description": "Port for the relational Postgres connection",
           "default": "${{postgres.PGPORT}}"
         },
         "DB_USERNAME": {
+          "description": "Username for the relational Postgres connection",
           "default": "${{postgres.PGUSER}}"
         },
         "DB_PASSWORD": {
+          "description": "Password for the relational Postgres connection",
           "default": "${{postgres.PGPASSWORD}}"
         },
         "DB_NAME": {
+          "description": "Database name used by Cognee relational storage",
           "default": "${{postgres.PGDATABASE}}"
         },
         "VECTOR_DB_PROVIDER": {
@@ -100,18 +109,23 @@
           "default": "pgvector"
         },
         "VECTOR_DB_URL": {
+          "description": "Connection URL for pgvector-backed vector storage",
           "default": "postgresql://${{postgres.PGUSER}}:${{postgres.PGPASSWORD}}@${{postgres.PGHOST}}:${{postgres.PGPORT}}/${{postgres.PGDATABASE}}"
         },
         "VECTOR_DB_HOST": {
+          "description": "Private Railway hostname for the pgvector connection",
           "default": "${{postgres.PGHOST}}"
         },
         "VECTOR_DB_PORT": {
+          "description": "Port for the pgvector connection",
           "default": "${{postgres.PGPORT}}"
         },
         "VECTOR_DB_USERNAME": {
+          "description": "Username for the pgvector connection",
           "default": "${{postgres.PGUSER}}"
         },
         "VECTOR_DB_PASSWORD": {
+          "description": "Password for the pgvector connection",
           "default": "${{postgres.PGPASSWORD}}"
         },
         "VECTOR_DATASET_DATABASE_HANDLER": {
@@ -131,9 +145,11 @@
           "default": "false"
         },
         "HOST": {
+          "description": "Bind address for the backend API service",
           "default": "0.0.0.0"
         },
         "ENVIRONMENT": {
+          "description": "Application environment label used by the backend service",
           "default": "prod"
         },
         "CORS_ALLOWED_ORIGINS": {
