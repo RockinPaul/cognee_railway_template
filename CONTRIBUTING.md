@@ -1,179 +1,115 @@
-> [!IMPORTANT]
-> **Note for contributors:** When branching out, create a new branch from the `dev` branch.
+# Contributing to the Cognee Railway Deployment Template
 
-# 🎉 Welcome to **cognee**!
+This repository is not the full upstream Cognee product repository.
 
-We're excited that you're interested in contributing to our project!
-We want to ensure that every user and contributor feels welcome, included and supported to participate in cognee community.
-This guide will help you get started and ensure your contributions can be efficiently integrated into the project.
+It is a deployment-focused fork that exists to maintain a working Railway template and the minimum code and configuration required to deploy:
 
-## 🌟 Quick Links
+- `cognee-api`
+- `cognee-mcp`
+- `postgres`
 
-- [Code of Conduct](CODE_OF_CONDUCT.md)
-- [Discord Community](https://discord.gg/bcy8xFAtfd)
-- [Issue Tracker](https://github.com/topoteretes/cognee/issues)
-- [Cognee Docs](https://docs.cognee.ai)
+For product development, feature work, and upstream community contributions, use the main Cognee repository:
 
-## 1. 🚀 Ways to Contribute
+- `https://github.com/topoteretes/cognee`
 
-You can contribute to **cognee** in many ways:
+## What belongs in this repo
 
-- 📝 Submitting bug reports or feature requests
-- 💡 Improving documentation
-- 🔍 Reviewing pull requests
-- 🛠️ Contributing code or tests
-- 🌐 Helping other users
+Changes are appropriate here if they improve one of the following:
 
-## 📫 Get in Touch
+- Railway deployment reliability
+- Railway template correctness
+- MCP production deployment shape on Railway
+- backend and MCP service configuration defaults
+- deployment documentation for this Railway-focused fork
+- small code fixes required to make the deployment actually work on Railway
 
-There are several ways to connect with the **cognee** team and community:
+Examples:
 
-### GitHub Collaboration
-- [Open an issue](https://github.com/topoteretes/cognee/issues) for bug reports, feature requests, or discussions
-- Submit pull requests to contribute code or documentation
-- Join ongoing discussions in existing issues and PRs
+- `railway-template.json` fixes
+- `railway.toml` fixes
+- `Dockerfile` or `Dockerfile.mcp` changes required for Railway
+- README / deployment guide updates
+- narrow runtime fixes that unblock `add -> cognify -> search`
+- narrow MCP fixes that unblock OpenCode/Claude Code connectivity
 
-### Community Channels
-- Join our [Discord community](https://discord.gg/bcy8xFAtfd) for real-time discussions
-- Participate in community events and discussions
-- Get help from other community members
+## What does not belong in this repo
 
-### Direct Contact
-- Email: vasilije@cognee.ai
-- For business inquiries or sensitive matters, please reach out via email
-- For general questions, prefer public channels like GitHub issues or Discord
+Please send these changes to the upstream Cognee repository instead:
 
-We aim to respond to all communications within 2 business days. For faster responses, consider using our Discord channel where the whole community can help!
+- general product features
+- non-Railway deployment work
+- broad API redesigns
+- unrelated graph/vector/database refactors
+- upstream community or SDK documentation changes not specific to this fork
 
-## Issue Labels
+## Contribution workflow for this repo
 
-To help you find the most appropriate issues to work on, we use the following labels:
+1. Start from the current default branch of this repository.
+2. Keep changes focused on deployment, template, or deployment-critical runtime behavior.
+3. Prefer the smallest change that fixes the Railway or MCP issue.
+4. Update documentation when behavior or required configuration changes.
+5. Verify the relevant deployment path before considering the change complete.
 
-- `good first issue` - Perfect for newcomers to the project
-- `bug` - Something isn't working as expected
-- `documentation` - Improvements or additions to documentation
-- `enhancement` - New features or improvements
-- `help wanted` - Extra attention or assistance needed
-- `question` - Further information is requested
-- `wontfix` - This will not be worked on
+## Required verification
 
-Looking for a place to start? Try filtering for [good first issues](https://github.com/topoteretes/cognee/labels/good%20first%20issue)!
+For deployment-affecting changes, verify as many of these as apply:
 
+- `cognee-api /health` returns `200`
+- `cognee-mcp /health` returns `200`
+- `cognee-mcp /sse` returns `200` in API/SSE mode
+- login works on the backend
+- `add -> cognify -> search` works on a fresh dataset
+- OpenCode connects to MCP successfully
+- OpenCode can execute at least one real Cognee MCP tool call
+- Postgres shows dataset persistence and nonzero graph data after a successful smoke test
 
-## 2. 🛠️ Development Setup
+For repo-only changes, at minimum verify:
 
-### Required tools
-* [Python](https://www.python.org/downloads/)
-* [uv](https://docs.astral.sh/uv/getting-started/installation/)
-* pre-commit: `uv run pip install pre-commit && pre-commit install`
+- changed JSON parses successfully
+- changed Python files compile
+- changed tests compile and, where relevant, pass
 
-### Fork and Clone
+## Safe environment policy
 
-1. Fork the [**cognee**](https://github.com/topoteretes/cognee) repository
-2. Clone your fork:
-```shell
-git clone https://github.com/<your-github-username>/cognee.git
-cd cognee
-```
-In case you are working on Vector and Graph Adapters
-1. Fork the [**cognee-community**](https://github.com/topoteretes/cognee-community) repository
-2. Clone your fork:
-```shell
-git clone https://github.com/<your-github-username>/cognee-community.git
-cd cognee-community
-```
+Inside Railway, always prefer private/internal service-to-service networking.
 
-### Create a Branch
+Use internal hosts for:
 
-Create a new branch for your work:
-```shell
-git checkout -b feature/your-feature-name
-```
+- `DB_HOST`
+- `GRAPH_DATABASE_HOST`
+- `VECTOR_DB_HOST`
+- `GRAPH_DATABASE_URL`
+- `VECTOR_DB_URL`
+- `API_URL`
 
-## 3. 🎯 Making Changes
+Use public URLs only for:
 
-1. **Code Style**: Follow the project's coding standards
-2. **Documentation**: Update relevant documentation
-3. **Tests**: Add tests for new features
-4. **Commits**: Write clear commit messages
+- end-user access
+- OpenCode / Claude Code / MCP client configuration
+- local debugging from outside Railway
+- direct laptop access to Postgres via Railway TCP proxy
 
-### Running Tests
+## Model defaults for this fork
 
-Rename `.env.example` into `.env` and provide your OPENAI_API_KEY as LLM_API_KEY
+This fork uses a reliability-first default model choice for Cognify:
 
-```shell
-uv run python cognee/tests/test_library.py
-```
+- default LLM model: `openrouter/openai/gpt-4o-mini`
+- default embedding model: `openrouter/google/gemini-embedding-2-preview`
 
-### Running Simple Example
+`openrouter/google/gemma-4-26b-a4b-it` may still be used as an advanced override, but it is not the stable default for this publishable Railway template.
 
-Rename `.env.example` into `.env` and provide your OPENAI_API_KEY as LLM_API_KEY
+## Important files in this repo
 
-Make sure to run ```shell uv sync ``` in the root cloned folder or set up a virtual environment to run cognee
+- `railway-template.json` — production Railway template
+- `railway.toml` — backend deploy config
+- `Dockerfile` — backend image
+- `Dockerfile.mcp` — MCP wrapper image for Railway
+- `README.md` — deployment-focused docs for this fork
+- `distributed/deploy/README.md` — upstream-style deploy notes with Railway references
 
-```shell
-python examples/python/simple_example.py
-```
-or
+## Getting help
 
-```shell
-uv run python examples/python/simple_example.py
-```
+If you are unsure whether a change belongs here or upstream:
 
-### Running Simple Example
-
-Change .env.example into .env and provide your OPENAI_API_KEY as LLM_API_KEY
-
-Make sure to run ```shell uv sync ``` in the root cloned folder or set up a virtual environment to run cognee
-
-```shell
-python cognee/cognee/examples/python/simple_example.py
-```
-or
-
-```shell
-uv run python cognee/cognee/examples/python/simple_example.py
-```
-
-## 4. 📤 Submitting Changes
-
-1. Make sure that `pre-commit` and hooks are installed. See `Required tools` section for more information. Try executing `pre-commit run` if you are not sure.
-3. Push your changes:
-```shell
-git add .
-git commit -s -m "Description of your changes"
-git push origin feature/your-feature-name
-```
-
-2. Create a Pull Request:
-   - Go to the [**cognee** repository](https://github.com/topoteretes/cognee) or [cognee community repository](https://github.com/topoteretes/cognee-community)
-   - Click "Compare & Pull Request" and open a PR against dev branch
-   - Fill in the PR template with details about your changes
-   - You MUST provide screenshots of unit and integration tests passing on your machine. We can't merge PRs otherwise
-
-## 5. 📜 Developer Certificate of Origin (DCO)
-
-All contributions must be signed-off to indicate agreement with our DCO:
-
-```shell
-git config alias.cos "commit -s"  # Create alias for signed commits
-```
-
-When your PR is ready, please include:
-> "I affirm that all code in every commit of this pull request conforms to the terms of the Topoteretes Developer Certificate of Origin"
-
-## 6. 🤝 Community Guidelines
-
-- Be respectful and inclusive
-- Help others learn and grow
-- Follow our [Code of Conduct](CODE_OF_CONDUCT.md)
-- Provide constructive feedback
-- Ask questions when unsure
-
-## 7. 📫 Getting Help
-
-- Open an [issue](https://github.com/topoteretes/cognee/issues)
-- Join our Discord community
-- Check existing documentation
-
-Thank you for contributing to **cognee**! 🌟
+- open an issue in this fork for Railway/template-specific work
+- use the upstream Cognee repo for general product questions and feature contributions
