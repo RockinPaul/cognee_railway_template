@@ -66,43 +66,43 @@
         },
         "GRAPH_DATABASE_URL": {
           "description": "Postgres connection string for graph persistence in single-user mode",
-          "value": "postgresql+asyncpg://${{postgres.PGUSER}}:${{postgres.PGPASSWORD}}@${{postgres.PGHOST}}:${{postgres.PGPORT}}/${{postgres.PGDATABASE}}"
+          "value": "postgresql+asyncpg://${{Postgres.PGUSER}}:${{Postgres.PGPASSWORD}}@${{Postgres.PGHOST}}:${{Postgres.PGPORT}}/${{Postgres.PGDATABASE}}"
         },
         "GRAPH_DATABASE_HOST": {
           "description": "Private Railway hostname for the graph Postgres connection",
-          "value": "${{postgres.PGHOST}}"
+          "value": "${{Postgres.PGHOST}}"
         },
         "GRAPH_DATABASE_PORT": {
           "description": "Port for graph persistence in Postgres",
-          "value": "${{postgres.PGPORT}}"
+          "value": "${{Postgres.PGPORT}}"
         },
         "GRAPH_DATABASE_USERNAME": {
           "description": "Username for the graph Postgres connection",
-          "value": "${{postgres.PGUSER}}"
+          "value": "${{Postgres.PGUSER}}"
         },
         "GRAPH_DATABASE_PASSWORD": {
           "description": "Password for the graph Postgres connection",
-          "value": "${{postgres.PGPASSWORD}}"
+          "value": "${{Postgres.PGPASSWORD}}"
         },
         "DB_HOST": {
           "description": "Private Railway hostname for the relational Postgres connection",
-          "value": "${{postgres.PGHOST}}"
+          "value": "${{Postgres.PGHOST}}"
         },
         "DB_PORT": {
           "description": "Port for the relational Postgres connection",
-          "value": "${{postgres.PGPORT}}"
+          "value": "${{Postgres.PGPORT}}"
         },
         "DB_USERNAME": {
           "description": "Username for the relational Postgres connection",
-          "value": "${{postgres.PGUSER}}"
+          "value": "${{Postgres.PGUSER}}"
         },
         "DB_PASSWORD": {
           "description": "Password for the relational Postgres connection",
-          "value": "${{postgres.PGPASSWORD}}"
+          "value": "${{Postgres.PGPASSWORD}}"
         },
         "DB_NAME": {
           "description": "Database name used by Cognee relational storage",
-          "value": "${{postgres.PGDATABASE}}"
+          "value": "${{Postgres.PGDATABASE}}"
         },
         "VECTOR_DB_PROVIDER": {
           "description": "Vector database provider",
@@ -110,23 +110,23 @@
         },
         "VECTOR_DB_URL": {
           "description": "Connection URL for pgvector-backed vector storage",
-          "value": "postgresql://${{postgres.PGUSER}}:${{postgres.PGPASSWORD}}@${{postgres.PGHOST}}:${{postgres.PGPORT}}/${{postgres.PGDATABASE}}"
+          "value": "postgresql://${{Postgres.PGUSER}}:${{Postgres.PGPASSWORD}}@${{Postgres.PGHOST}}:${{Postgres.PGPORT}}/${{Postgres.PGDATABASE}}"
         },
         "VECTOR_DB_HOST": {
           "description": "Private Railway hostname for the pgvector connection",
-          "value": "${{postgres.PGHOST}}"
+          "value": "${{Postgres.PGHOST}}"
         },
         "VECTOR_DB_PORT": {
           "description": "Port for the pgvector connection",
-          "value": "${{postgres.PGPORT}}"
+          "value": "${{Postgres.PGPORT}}"
         },
         "VECTOR_DB_USERNAME": {
           "description": "Username for the pgvector connection",
-          "value": "${{postgres.PGUSER}}"
+          "value": "${{Postgres.PGUSER}}"
         },
         "VECTOR_DB_PASSWORD": {
           "description": "Password for the pgvector connection",
-          "value": "${{postgres.PGPASSWORD}}"
+          "value": "${{Postgres.PGPASSWORD}}"
         },
         "VECTOR_DATASET_DATABASE_HANDLER": {
           "description": "Dataset handler aligned with the pgvector backend",
@@ -194,7 +194,7 @@
       }
     },
     {
-      "name": "postgres",
+      "name": "Postgres",
       "plugin": "postgresql"
     }
   ]
