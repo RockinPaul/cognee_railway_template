@@ -12,6 +12,30 @@ The easiest stable setup is:
 - `cognee-mcp` sourced from this GitHub repo using `railway.mcp.toml`
 - `postgres` as a Railway PostgreSQL plugin service
 
+## Which Railway file does what?
+
+- `railway-template.json`
+  - Used for Railway template generation and template metadata
+  - Describes which services should be provisioned and what variables/defaults they expose
+  - Not the file Railway uses as the live build/deploy config for an individual service
+
+- `railway.toml`
+  - Generic backend deploy config in this repo
+  - Can be used for a simple single-service backend deploy
+
+- `railway.api.toml`
+  - Service-specific deploy config for `cognee-api`
+  - Railway reads this when you point the `cognee-api` service's Config-as-code setting to it
+
+- `railway.mcp.toml`
+  - Service-specific deploy config for `cognee-mcp`
+  - Railway reads this when you point the `cognee-mcp` service's Config-as-code setting to it
+
+In short:
+
+- Template generation: `railway-template.json`
+- Actual per-service deploy settings: `railway.api.toml` and `railway.mcp.toml`
+
 ## 1. Push this repository to GitHub
 
 Railway template generation requires app services to have a reusable source.
