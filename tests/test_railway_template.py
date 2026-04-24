@@ -24,12 +24,12 @@ def test_cognee_mcp_service_targets_api_mode() -> None:
 
     assert mcp_service["build"]["dockerfilePath"] == "Dockerfile.mcp"
     assert mcp_service["deploy"]["healthcheckPath"] == "/health"
-    assert mcp_service["variables"]["TRANSPORT_MODE"]["default"] == "sse"
+    assert mcp_service["variables"]["TRANSPORT_MODE"]["value"] == "sse"
     assert (
-        mcp_service["variables"]["API_URL"]["default"]
+        mcp_service["variables"]["API_URL"]["value"]
         == "http://${{cognee-api.RAILWAY_PRIVATE_DOMAIN}}:8080"
     )
     assert (
-        mcp_service["variables"]["MCP_ALLOWED_HOSTS"]["default"]
+        mcp_service["variables"]["MCP_ALLOWED_HOSTS"]["value"]
         == "${{cognee-mcp.RAILWAY_PUBLIC_DOMAIN}},${{cognee-mcp.RAILWAY_PUBLIC_DOMAIN}}:*"
     )
