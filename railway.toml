@@ -1,9 +1,7 @@
-# Railway deployment configuration for Cognee
-# Deploy: railway init && railway up
-# Or use the "Deploy on Railway" button in the README
-
-[build]
-dockerfilePath = "Dockerfile"
+# Legacy Config-as-Code. Railway reads this only for services created before it
+# deprecated railway.toml, and stops reading it on 2026-12-01. New deploys get
+# these settings from the template definition instead. Kept so existing
+# deployers keep their healthcheck until then.
 
 [deploy]
 healthcheckPath = "/health"

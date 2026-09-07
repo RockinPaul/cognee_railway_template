@@ -10,11 +10,10 @@ __pycache__/
 .opencode/
 .anon_id
 .omc/
+.remember/
 .playwright-mcp/
 .pytest_cache/
 .venv/
-cognee/.cognee_system/
-cognee/.data_storage/
 *.log
 
 # Editor directories
