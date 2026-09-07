@@ -8,6 +8,8 @@
 - `cognee-mcp` runs `cognee/cognee-mcp:main-e93a4f0` with Streamable HTTP at `/mcp`. Previously SSE at `/sse`.
 - Removed: the vendored `cognee/` and `distributed/` trees, `pyproject.toml`, `uv.lock`, `entrypoint.sh`, `railway-template.json`, `railway.api.toml`, `railway.mcp.toml`, `tests/`, `examples/`.
 - `railway.toml` stays for services created before Railway deprecated Config-as-Code. Railway stops reading it on 2026-12-01.
+- New deploys default to `openrouter/openai/text-embedding-3-large` embeddings (GA, cheaper) instead of the `gemini-embedding-2-preview` model. **Existing deployments keep their embedding model.** Changing `EMBEDDING_MODEL` invalidates stored vectors and requires re-adding all data.
+- New deploys set `GRAPH_DATABASE_NAME` and `VECTOR_DB_NAME`. Optional on existing deployments; they only silence a "falling back to the relational database configuration" warning.
 
 ### Upgrading an existing deployment
 

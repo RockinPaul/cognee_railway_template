@@ -37,11 +37,12 @@ Railway deprecated `railway.toml` / `railway.json` config. New services ignore t
 | `LLM_INSTRUCTOR_MODE` | `json_schema_mode` |
 | `EMBEDDING_PROVIDER` | `litellm` |
 | `EMBEDDING_ENDPOINT` | `https://openrouter.ai/api/v1` |
-| `EMBEDDING_MODEL` | `openrouter/google/gemini-embedding-2-preview` |
+| `EMBEDDING_MODEL` | `openrouter/openai/text-embedding-3-large` |
 | `EMBEDDING_DIMENSIONS` | `3072` |
 | `EMBEDDING_API_KEY` | `${{LLM_API_KEY}}` (same-service reference; deployers override for a separate key). Must not be empty: with `LLM_PROVIDER=custom` there is no fallback to the LLM key. |
 | `DB_PROVIDER` | `postgres` |
 | `DB_HOST` / `DB_PORT` / `DB_USERNAME` / `DB_PASSWORD` / `DB_NAME` | `${{Postgres.PGHOST}}` / `PGPORT` / `PGUSER` / `PGPASSWORD` / `PGDATABASE` |
+| `GRAPH_DATABASE_NAME` / `VECTOR_DB_NAME` | `${{Postgres.PGDATABASE}}` (without them cognee logs a "credentials not fully configured, falling back" warning at every boot; the fallback is the same database) |
 | `GRAPH_DATABASE_PROVIDER` | `postgres` |
 | `GRAPH_DATABASE_URL` | `postgresql+asyncpg://${{Postgres.PGUSER}}:${{Postgres.PGPASSWORD}}@${{Postgres.PGHOST}}:${{Postgres.PGPORT}}/${{Postgres.PGDATABASE}}` |
 | `GRAPH_DATABASE_HOST` / `PORT` / `USERNAME` / `PASSWORD` | same `${{Postgres.*}}` references |

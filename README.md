@@ -44,7 +44,11 @@ Prefer the legacy SSE transport? Set `TRANSPORT_MODE=sse` on `cognee-mcp` and us
 - `LLM_API_KEY`: an OpenRouter key for the LLM.
 - `EMBEDDING_API_KEY`: defaults to `${{LLM_API_KEY}}` in the template. Override it only if embeddings use a different key. Do not leave it empty: with `LLM_PROVIDER=custom` cognee does not fall back to the LLM key, and ingestion fails with an embedding connection timeout.
 
-Defaults: LLM `openrouter/openai/gpt-4o-mini`, embeddings `openrouter/google/gemini-embedding-2-preview` with 3072 dimensions. Single-user mode: `ENABLE_BACKEND_ACCESS_CONTROL=false`, `REQUIRE_AUTHENTICATION=false`.
+Defaults: LLM `openrouter/openai/gpt-4o-mini`, embeddings `openrouter/openai/text-embedding-3-large` with 3072 dimensions. Single-user mode: `ENABLE_BACKEND_ACCESS_CONTROL=false`, `REQUIRE_AUTHENTICATION=false`.
+
+**Cheaper LLM.** `LLM_MODEL=openrouter/deepseek/deepseek-v4-flash` was tested with this template and cuts output cost by about 70% versus `gpt-4o-mini`. Your notes are the payload sent to the model provider, so check the provider routing and data-retention policy in your OpenRouter account before switching a memory store to it.
+
+Changing `EMBEDDING_MODEL` on a running deployment invalidates every stored vector. Pick it before adding data, or re-add everything after.
 
 ## How it fits together
 

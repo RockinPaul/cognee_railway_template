@@ -39,14 +39,14 @@ Example OpenCode MCP configuration:
   "mcp": {
     "cognee": {
       "type": "remote",
-      "url": "https://<cognee-mcp-service>.up.railway.app/mcp",
+      "url": "https://YOUR-MCP-DOMAIN.up.railway.app/mcp",
       "enabled": true
     }
   }
 }
 ```
 
-Claude Code: `claude mcp add --transport http cognee https://<cognee-mcp-service>.up.railway.app/mcp`
+Claude Code: `claude mcp add --transport http cognee https://YOUR-MCP-DOMAIN.up.railway.app/mcp`
 
 ### Upgrading from an earlier version
 
