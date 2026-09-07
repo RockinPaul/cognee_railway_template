@@ -19,8 +19,8 @@ Railway deprecated `railway.toml` / `railway.json` config. New services ignore t
 - Source: same repo, branch `main`
 - Variable `RAILWAY_DOCKERFILE_PATH=Dockerfile.mcp` (required, otherwise Railway builds the API `Dockerfile`)
 - Healthcheck path `/health`, timeout 240
-- Public domain enabled
-- Variables: `TRANSPORT_MODE=http`, `API_URL=http://${{cognee-api.RAILWAY_PRIVATE_DOMAIN}}:8080`, `MCP_DISABLE_DNS_REBINDING_PROTECTION=true`, `API_TOKEN=` (optional)
+- Public domain enabled, target port 8080
+- Variables: `PORT=8080`, `TRANSPORT_MODE=http`, `API_URL=http://${{cognee-api.RAILWAY_PRIVATE_DOMAIN}}:8080`, `MCP_DISABLE_DNS_REBINDING_PROTECTION=true`, `API_TOKEN=` (optional)
 - Why the DNS-rebinding flag: Railway's healthcheck probes the container from an internal address whose `Host` header is not the public domain. With the check on, every probe gets HTTP 421 and the deploy fails. Railway's edge already routes only the configured domain to the service, so the check adds nothing here. `MCP_ALLOWED_HOSTS` is then unused and can be dropped.
 
 `Postgres`
