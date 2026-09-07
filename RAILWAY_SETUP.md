@@ -1,171 +1,84 @@
-# Railway Setup
+# Railway Setup (maintainers)
 
-This repository is intended to be wired into Railway as three services:
+Two things live on Railway and are edited separately:
 
-- `cognee-api`
-- `cognee-mcp`
-- `postgres`
+1. **The published template** `cognee-ai-memory-p-1`: Workspace → Templates → "Cognee AI Memory Platform with MCP". This is what deployers get. Its services attach directly to this repo's `main` branch.
+2. **The reference project** `cognee-railway-template`: a normal project used to test changes. Editing it does not change the template.
 
-The easiest stable setup is:
+Railway deprecated `railway.toml` / `railway.json` config. New services ignore them, and existing ones stop reading them on 2026-12-01. Service settings therefore live in the template definition, not in this repo.
 
-- `cognee-api` sourced from this GitHub repo using `railway.api.toml`
-- `cognee-mcp` sourced from this GitHub repo using `railway.mcp.toml`
-- `postgres` as a Railway PostgreSQL plugin service
+## Template definition
 
-## Which Railway file does what?
+`cognee-api`
+- Source: `https://github.com/RockinPaul/cognee_railway_template`, branch `main`
+- Healthcheck path `/health`, timeout 240, restart `ON_FAILURE`
+- Public domain enabled
+- Variables: see the "Variables" table below
 
-- `railway-template.json`
-  - Used for Railway template generation and template metadata
-  - Describes which services should be provisioned and what variables/defaults they expose
-  - Not the file Railway uses as the live build/deploy config for an individual service
+`cognee-mcp`
+- Source: same repo, branch `main`
+- Variable `RAILWAY_DOCKERFILE_PATH=Dockerfile.mcp` (required, otherwise Railway builds the API `Dockerfile`)
+- Healthcheck path `/health`, timeout 240
+- Public domain enabled
+- Variables: `TRANSPORT_MODE=http`, `API_URL=http://${{cognee-api.RAILWAY_PRIVATE_DOMAIN}}:8080`, `MCP_DISABLE_DNS_REBINDING_PROTECTION=true`, `API_TOKEN=` (optional)
+- Why the DNS-rebinding flag: Railway's healthcheck probes the container from an internal address whose `Host` header is not the public domain. With the check on, every probe gets HTTP 421 and the deploy fails. Railway's edge already routes only the configured domain to the service, so the check adds nothing here. `MCP_ALLOWED_HOSTS` is then unused and can be dropped.
 
-- `railway.toml`
-  - Generic backend deploy config in this repo
-  - Can be used for a simple single-service backend deploy
+`Postgres`
+- Railway's `postgres-ssl` image with a volume at `/var/lib/postgresql/data`. Unchanged.
 
-- `railway.api.toml`
-  - Service-specific deploy config for `cognee-api`
-  - Railway reads this when you point the `cognee-api` service's Config-as-code setting to it
+### Variables for `cognee-api`
 
-- `railway.mcp.toml`
-  - Service-specific deploy config for `cognee-mcp`
-  - Railway reads this when you point the `cognee-mcp` service's Config-as-code setting to it
+| Variable | Value |
+|---|---|
+| `LLM_API_KEY` | user supplied |
+| `LLM_PROVIDER` | `custom` |
+| `LLM_ENDPOINT` | `https://openrouter.ai/api/v1` |
+| `LLM_MODEL` | `openrouter/openai/gpt-4o-mini` |
+| `LLM_INSTRUCTOR_MODE` | `json_schema_mode` |
+| `EMBEDDING_PROVIDER` | `litellm` |
+| `EMBEDDING_ENDPOINT` | `https://openrouter.ai/api/v1` |
+| `EMBEDDING_MODEL` | `openrouter/google/gemini-embedding-2-preview` |
+| `EMBEDDING_DIMENSIONS` | `3072` |
+| `EMBEDDING_API_KEY` | `${{LLM_API_KEY}}` (same-service reference; deployers override for a separate key). Must not be empty: with `LLM_PROVIDER=custom` there is no fallback to the LLM key. |
+| `DB_PROVIDER` | `postgres` |
+| `DB_HOST` / `DB_PORT` / `DB_USERNAME` / `DB_PASSWORD` / `DB_NAME` | `${{Postgres.PGHOST}}` / `PGPORT` / `PGUSER` / `PGPASSWORD` / `PGDATABASE` |
+| `GRAPH_DATABASE_PROVIDER` | `postgres` |
+| `GRAPH_DATABASE_URL` | `postgresql+asyncpg://${{Postgres.PGUSER}}:${{Postgres.PGPASSWORD}}@${{Postgres.PGHOST}}:${{Postgres.PGPORT}}/${{Postgres.PGDATABASE}}` |
+| `GRAPH_DATABASE_HOST` / `PORT` / `USERNAME` / `PASSWORD` | same `${{Postgres.*}}` references |
+| `VECTOR_DB_PROVIDER` | `pgvector` |
+| `VECTOR_DB_URL` | `postgresql://${{Postgres.PGUSER}}:${{Postgres.PGPASSWORD}}@${{Postgres.PGHOST}}:${{Postgres.PGPORT}}/${{Postgres.PGDATABASE}}` |
+| `VECTOR_DB_HOST` / `PORT` / `USERNAME` / `PASSWORD` | same `${{Postgres.*}}` references |
+| `VECTOR_DATASET_DATABASE_HANDLER` | `pgvector` |
+| `ENABLE_BACKEND_ACCESS_CONTROL` | `false` |
+| `REQUIRE_AUTHENTICATION` | `false` |
+| `ENV` | `prod` |
+| `PORT` | `8080` (so `API_URL` is deterministic) |
+| `CORS_ALLOWED_ORIGINS` | `*` |
 
-In short:
+## Editing the template
 
-- Template generation: `railway-template.json`
-- Actual per-service deploy settings: `railway.api.toml` and `railway.mcp.toml`
+Open the template in the dashboard editor, change services or variables, save. The template code and deploy URL stay the same. Do not use `railway templates create` for this: it produces a new template with a new code.
 
-## 1. Push this repository to GitHub
+Marketplace text comes from `TEMPLATE_OVERVIEW.md`:
 
-Railway template generation requires app services to have a reusable source.
-
-Make sure this repository is pushed to GitHub and visible to Railway.
-
-## 2. Create or verify the PostgreSQL service
-
-In Railway:
-
-1. Open your project
-2. Click `New`
-3. Add a `PostgreSQL` service
-4. Keep the default service name or rename it to `postgres`
-
-This service provides:
-
-- `PGHOST`
-- `PGPORT`
-- `PGUSER`
-- `PGPASSWORD`
-- `PGDATABASE`
-
-## 3. Configure `cognee-api`
-
-In Railway:
-
-1. Create a new service named `cognee-api`
-2. Connect it to this GitHub repository
-3. In `Build`, select `Dockerfile`
-4. In `Config-as-code`, set the Railway config file to:
-
-   `railway.api.toml`
-
-5. In `Source`, leave root directory empty unless you intentionally move files into a subdirectory
-
-### Required variables for `cognee-api`
-
-Set these variables on the `cognee-api` service:
-
-- `LLM_API_KEY`
-- optional `EMBEDDING_API_KEY` if not reusing `LLM_API_KEY`
-
-The template defaults are designed for:
-
-- OpenRouter LLM via `openrouter/openai/gpt-4o-mini`
-- OpenRouter embeddings via `openrouter/google/gemini-embedding-2-preview`
-- single-user mode
-- Postgres graph persistence
-- pgvector vector persistence
-
-## 4. Configure `cognee-mcp`
-
-In Railway:
-
-1. Create a new service named `cognee-mcp`
-2. Connect it to this GitHub repository
-3. In `Build`, select `Dockerfile`
-4. In `Config-as-code`, set the Railway config file to:
-
-   `railway.mcp.toml`
-
-5. In `Source`, leave root directory empty
-
-The `Dockerfile.mcp` wrapper ensures the MCP service:
-
-- honors Railway `PORT`
-- runs in API/SSE mode
-- can be exposed publicly at `/sse`
-
-### Required variables for `cognee-mcp`
-
-Set these variables on the `cognee-mcp` service:
-
-- `API_URL=http://cognee-api.railway.internal:8080`
-- `TRANSPORT_MODE=sse`
-- `MCP_ALLOWED_HOSTS=<your-public-mcp-domain>,<your-public-mcp-domain>:*`
-
-You can also reuse the same OpenRouter and database variables as the backend, if you want the MCP service to execute backend-facing operations consistently.
-
-## 5. Generate the public MCP domain
-
-After `cognee-mcp` is created:
-
-1. Open the `cognee-mcp` service
-2. Go to the domain section
-3. Generate a Railway domain
-4. Copy the domain value
-5. Use that exact hostname in `MCP_ALLOWED_HOSTS`
-
-Example:
-
-- public domain: `cognee-mcp-production-9beb.up.railway.app`
-- `MCP_ALLOWED_HOSTS=cognee-mcp-production-9beb.up.railway.app,cognee-mcp-production-9beb.up.railway.app:*`
-
-## 6. Verify the deployment
-
-### Backend API
-
-- `https://<cognee-api-domain>/health` should return `200`
-
-### MCP service
-
-- `https://<cognee-mcp-domain>/health` should return `200`
-- `https://<cognee-mcp-domain>/sse` should return `200`
-
-Note:
-
-- `/mcp` is not the correct endpoint for the production MCP service in this setup
-- the correct public endpoint is `/sse`
-
-## 7. Verify from OpenCode
-
-Your OpenCode config should point to the MCP SSE endpoint:
-
-```json
-{
-  "$schema": "https://opencode.ai/config.json",
-  "mcp": {
-    "cognee": {
-      "type": "remote",
-      "url": "https://<cognee-mcp-domain>.up.railway.app/sse",
-      "enabled": true,
-      "oauth": false
-    }
-  }
-}
+```bash
+railway templates publish cognee-ai-memory-p-1 --readme-file TEMPLATE_OVERVIEW.md
 ```
 
-Then verify:
+Repo changes merged to `main` trigger Railway's opt-in update notification for every deployer. Template-definition changes reach only new deploys, so anything an existing deployer must change by hand goes into `CHANGELOG.md`.
 
-- OpenCode shows `cognee` as connected
-- a real Cognee MCP tool call succeeds
+## Rebuilding the reference project
+
+```bash
+railway login
+railway link -p cognee-railway-template -e production
+```
+
+Then per service in the dashboard: `cognee-api` source = this repo on the branch under test; `cognee-mcp` source = this repo with `RAILWAY_DOCKERFILE_PATH=Dockerfile.mcp`; healthchecks `/health`; variables as above. Deploy Postgres first.
+
+Verify:
+
+- `https://<api-domain>/health` returns 200
+- `https://<mcp-domain>/health` returns 200
+- an MCP client connected to `https://<mcp-domain>/mcp` can run `remember` then `recall`
+- `railway logs -s cognee-api` shows `Database migrations done` and an `auth posture` line
