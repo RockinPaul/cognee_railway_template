@@ -39,14 +39,18 @@ Example OpenCode MCP configuration:
   "mcp": {
     "cognee": {
       "type": "remote",
-      "url": "https://<cognee-mcp-service>.up.railway.app/mcp",
+      "url": "https://YOUR-MCP-DOMAIN.up.railway.app/mcp",
       "enabled": true
     }
   }
 }
 ```
 
-Claude Code: `claude mcp add --transport http cognee https://<cognee-mcp-service>.up.railway.app/mcp`
+Claude Code: `claude mcp add --transport http cognee https://YOUR-MCP-DOMAIN.up.railway.app/mcp`
+
+### Upgrading from an earlier version
+
+Deployments created before September 2026 ran cognee 1.0.1. Before applying the update, back up the Postgres service. Your data migrates itself on first boot; the MCP service needs three variables and a public domain. Steps and details: https://github.com/RockinPaul/cognee_railway_template/blob/main/CHANGELOG.md
 
 ### Upgrading from an earlier version
 
