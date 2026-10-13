@@ -4,7 +4,7 @@
 
 Railway template for [cognee](https://github.com/topoteretes/cognee), the AI memory engine. It deploys:
 
-- `cognee-api`: the cognee backend, from the upstream image `cognee/cognee:1.5.4`
+- `cognee-api`: the cognee backend, from the upstream image `cognee/cognee:1.6.4`
 - `cognee-mcp`: the cognee MCP server in API mode, exposed publicly with Streamable HTTP at `/mcp`
 - `Postgres`: one managed Postgres with pgvector for relational, graph, and vector storage
 
@@ -37,7 +37,7 @@ claude mcp add --transport http cognee https://<cognee-mcp-domain>.up.railway.ap
 
 Prefer the legacy SSE transport? Set `TRANSPORT_MODE=sse` on `cognee-mcp` and use `/sse` instead.
 
-**The MCP endpoint is public and unauthenticated by design** (single-user template, `REQUIRE_AUTHENTICATION=false`). Anyone who learns the URL can read and write your memory. Treat the domain like a secret, or turn on backend authentication and set `API_TOKEN` on `cognee-mcp`.
+**The MCP endpoint is public and unauthenticated by design** (single-user template, `REQUIRE_AUTHENTICATION=false`). Anyone who learns the URL can read and write your memory. Treat the domain like a secret, or turn on backend authentication (`REQUIRE_AUTHENTICATION=true`) and set `API_TOKEN` on `cognee-mcp`. With authentication on, also set `FASTAPI_USERS_JWT_SECRET` on `cognee-api` to a long random value: without it cognee signs tokens with a secret generated at each start, so `API_TOKEN` stops working whenever `cognee-api` restarts or redeploys.
 
 ## Variables you must provide
 

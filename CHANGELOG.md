@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-10 — cognee 1.6.4
+
+- `cognee-api` runs `cognee/cognee:1.6.4` (was 1.5.4). `cognee-mcp` runs `cognee/cognee-mcp:main-f154b32`, the v1.6.4 release commit (was `main-e93a4f0`).
+- Security fixes since 1.5.4: the default user no longer gets the public `default_password`; token signing secrets no longer fall back to the public `super_secret`; configuration reads and agent connections are scoped to their owner; Alembic no longer logs the database password. 1.6.4 also stops pgvector searches from selecting the vector column.
+- Upstream removed the LanceDB compaction settings and `.env` file loading. This template uses neither: it runs on pgvector and sets everything as service variables.
+
+### Upgrading an existing deployment
+
+Your data stays, and in the default single-user setup (`REQUIRE_AUTHENTICATION=false`) there is nothing to change. **Back up Postgres first**: 1.6.4 adds two Alembic revisions (a dataset-listing index and the capability layer), and 1.5.4 cannot start against a database that has them. Verified locally with the template's variables: a 1.5.4 database with a stored memory upgraded in place, kept its graph, recalled the old memory through `/mcp` and stored a new one.
+
+**If you turned authentication on:**
+
+1. Set `FASTAPI_USERS_JWT_SECRET` on `cognee-api` to a long random value. 1.5.4 signed tokens with the public `super_secret`; 1.6.4 generates a secret at each start when the variable is unset, so tokens stop working on every restart (verified: 200 before a restart, 401 after; with the variable set, 200 after).
+2. Log in again and put the new token in `API_TOKEN` on `cognee-mcp`. Tokens signed with `super_secret` are no longer accepted.
+3. Change the default user's password if it is still `default_password`. Upgrades keep the password the account already has, and `DEFAULT_USER_PASSWORD` sets one only on an account that has none, so it does not replace the old one.
+
+New deploys create the default user without a password (it cannot log in), so a fresh single-user deploy works unchanged.
+
 ## 2026-09 — cognee 1.5.4
 
 **Breaking for existing deployments.** Read "Upgrading" below before applying this update.
