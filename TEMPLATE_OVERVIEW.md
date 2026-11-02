@@ -27,7 +27,7 @@ Hosting this template deploys three connected services: `cognee-api` as the priv
 ### Implementation Details
 
 The template deploys:
-- `cognee-api` from the upstream image `cognee/cognee:1.6.4` with a `/health` healthcheck
+- `cognee-api` from the upstream image `cognee/cognee:1.6.6` with a `/health` healthcheck
 - `cognee-mcp` from the upstream `cognee/cognee-mcp` image in API mode, exposed publicly at `/mcp`
 - `Postgres` as the shared persistence layer for relational, graph, and vector data. Upstream cognee labels its Postgres graph adapter demo-grade and recommends a graph-native store such as Neo4j for heavy production workloads; this template favors one database over that.
 

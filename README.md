@@ -4,7 +4,7 @@
 
 Railway template for [cognee](https://github.com/topoteretes/cognee), the AI memory engine. It deploys:
 
-- `cognee-api`: the cognee backend, from the upstream image `cognee/cognee:1.6.4`
+- `cognee-api`: the cognee backend, from the upstream image `cognee/cognee:1.6.6`
 - `cognee-mcp`: the cognee MCP server in API mode, exposed publicly with Streamable HTTP at `/mcp`
 - `Postgres`: one managed Postgres with pgvector for relational, graph, and vector storage
 

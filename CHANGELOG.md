@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-11 — cognee 1.6.6
+
+- `cognee-api` runs `cognee/cognee:1.6.6` (was 1.6.4). `cognee-mcp` runs `cognee/cognee-mcp:main-df2b4fa`, the v1.6.6 release commit (was `main-f154b32`).
+- Security fixes since 1.6.4: prompt file reads are confined to their directory; the visualisation permission check is skipped only for the dataset owner; Cypher search types are off by default; certifi 2026.10.19 and refreshed CA bundles in the image.
+- Upstream removed the filesystem session cache backend and moved fastembed models to the Hugging Face cache. This template uses neither: it runs on pgvector with an OpenAI-compatible embedding endpoint.
+
+### Upgrading an existing deployment
+
+Nothing to change. **Back up Postgres first**: 1.6.6 adds three Alembic revisions (pipeline run sessions, embedding token usage, and one that drops `run_info` data), so a rollback to 1.6.4 means restoring the backup. If you relied on Cypher search through the API, it is now opt-in upstream.
+
 ## 2026-10 — cognee 1.6.4
 
 - `cognee-api` runs `cognee/cognee:1.6.4` (was 1.5.4). `cognee-mcp` runs `cognee/cognee-mcp:main-f154b32`, the v1.6.4 release commit (was `main-e93a4f0`).

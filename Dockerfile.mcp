@@ -1,7 +1,7 @@
 # Cognee MCP server for Railway, running in API mode against cognee-api.
-# cognee-mcp has no 1.6.4 tag; main-<sha> tags are immutable builds of upstream main,
-# and f154b32 is the v1.6.4 release commit.
-FROM cognee/cognee-mcp:main-f154b32
+# cognee-mcp has no 1.6.6 tag; main-<sha> tags are immutable builds of upstream main,
+# and df2b4fa is the v1.6.6 release commit.
+FROM cognee/cognee-mcp:main-df2b4fa
 
 # Railway injects PORT; the upstream entrypoint listens on HTTP_PORT.
 ENTRYPOINT ["sh", "-c", "export HTTP_PORT=${PORT:-8000}; exec /app/entrypoint.sh"]
