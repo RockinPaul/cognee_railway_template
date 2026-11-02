@@ -1,6 +1,6 @@
 # Deploy and Host Cognee AI Memory Platform with MCP on Railway
 
-Cognee AI Memory Platform with MCP combines a private Cognee backend, durable Postgres + pgvector storage, and a public MCP service so AI tools can store, structure, and retrieve memory across sessions. The template runs the upstream cognee 1.6.4 images with OpenRouter-backed models and exposes the MCP server over Streamable HTTP for client integrations. It is a single-user deployment: the MCP endpoint is public and unauthenticated by design, so treat its URL like a secret.
+Cognee AI Memory Platform with MCP combines a private Cognee backend, durable Postgres + pgvector storage, and a public MCP service so AI tools can store, structure, and retrieve memory across sessions. The template runs the upstream cognee 1.6.6 images with OpenRouter-backed models and exposes the MCP server over Streamable HTTP for client integrations. It is a single-user deployment: the MCP endpoint is public and unauthenticated by design, so treat its URL like a secret.
 
 ## About Hosting Cognee AI Memory Platform with MCP
 
