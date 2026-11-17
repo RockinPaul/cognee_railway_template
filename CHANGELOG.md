@@ -1,5 +1,54 @@
 # Changelog
 
+## 2026-11-17 — cognee 1.6.8 and MCP main-5870f15
+
+- Advances API 1.6.6 to 1.6.8 and MCP `main-df2b4fa` to `main-5870f15` together. These are tested
+  compatible builds, not the same source commit. Provider, embedding and storage defaults stay unchanged.
+- The standard deployment uses Postgres/pgvector, not Ladybug/Kuzu. The flagged Ladybug format
+  43→49 conversion therefore does not apply. Its PostgreSQL provenance columns/indexes were already
+  present in the old 1.6.6 fixture; the upgrade preserves them rather than introducing them.
+- Raw files remain ephemeral without an API volume. Back up Postgres **and** copy `/cognee-storage`
+  before replacement if re-ingestion or complete rollback matters; graph/vector/metadata persistence
+  is not raw-file persistence. This update adds no storage topology change.
+- The 1.6.6 API cannot start on the new Alembic revision `e3f1a9c5b7d2`. Restore a consistent
+  pre-upgrade logical backup and the old image pair for rollback; restore raw files as needed.
+- API URL/database ingestion opt-ins remain unset. API-mode MCP string uploads are literal text,
+  including URLs and DSNs. Use the explicit API source-ingestion route for deliberate fetching;
+  never give MCP a credential-bearing DSN. Existing HTTP/database safety checks remain active.
+- Corrects the authentication guidance: enabling backend auth and configuring an MCP backend key
+  still delegates that key to anonymous MCP callers. Use private MCP exposure or an authenticated
+  gateway. `COGNEE_API_KEY` plus the `x-api-key` auth scheme avoids a key in process arguments;
+  stable JWT signing configuration is needed if using login tokens across replacement.
+
+### Rehearsal scope
+
+Verified populated old API/MCP → target pair on Linux/amd64 with real PostgreSQL/pgvector.
+The initial PG17 matrix was supplemented with the actual Railway source image
+`ghcr.io/railwayapp-templates/postgres-ssl:18` (resolved to PostgreSQL 18.6 / pgvector 0.8.7).
+That PG18 baseline included two users, four datasets/documents, 16 graph nodes and 19 edges,
+including a new write through the old API-mode MCP. Upgrade preserved the complete captured
+application rows, vectors, eight provenance columns and six GIN indexes exactly. New writes,
+API/MCP searches and full replacement passed; database connections negotiated TLS 1.3 with no
+SSL-mode overrides, and the database certificate fingerprint persisted.
+
+A separate logical backup restore into a fresh PG18 test volume, plus the baseline raw archive
+and old image pair, restored identities/content, login, searches and new old-version writes.
+The separate image-only downgrade failed at the newer Alembic revision; no reverse migration was
+invented. Unset/false ingestion refusals, explicit local opt-ins and their safety refusals were
+tested; API-mode MCP literal-upload and public-transport delegation behavior were verified directly.
+An auth-enabled test variant checked 401s and stable JWT/API-key access across replacement without
+changing this template's intentionally unauthenticated defaults.
+
+Model and 3072-dimensional embedding responses came from a controlled local stub, not a paid
+provider. No live data, Railway deployment/publication or Ladybug migration was used. The mutable
+PG18 source tag was resolved for the rehearsal; it is not a claim about the immutable bits of an
+older running production container. Docker's inherited image health probes still target port 8000;
+the wrapper serves 8080, so verification used the actual `/health`, API and MCP endpoints rather
+than treating Docker's health status as proof.
+
+Earlier entries below are dated historical evidence; their `API_TOKEN` instructions only configure
+backend access and must not be read as MCP transport authentication.
+
 ## 2026-11 — cognee 1.6.6
 
 - `cognee-api` runs `cognee/cognee:1.6.6` (was 1.6.4). `cognee-mcp` runs `cognee/cognee-mcp:main-df2b4fa`, the v1.6.6 release commit (was `main-f154b32`).

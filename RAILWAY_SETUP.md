@@ -20,11 +20,19 @@ Railway deprecated `railway.toml` / `railway.json` config. New services ignore t
 - Variable `RAILWAY_DOCKERFILE_PATH=Dockerfile.mcp` (required, otherwise Railway builds the API `Dockerfile`)
 - Healthcheck path `/health`, timeout 240
 - Public domain enabled, target port 8080
-- Variables: `PORT=8080`, `TRANSPORT_MODE=http`, `API_URL=http://${{cognee-api.RAILWAY_PRIVATE_DOMAIN}}:8080`, `MCP_DISABLE_DNS_REBINDING_PROTECTION=true`, `API_TOKEN=` (optional)
+- Variables: `PORT=8080`, `TRANSPORT_MODE=http`, `API_URL=http://${{cognee-api.RAILWAY_PRIVATE_DOMAIN}}:8080`, `MCP_DISABLE_DNS_REBINDING_PROTECTION=true`. With backend API-key auth, use optional `COGNEE_API_KEY` plus `COGNEE_API_AUTH_SCHEME=x-api-key`; avoid placing the key in the entrypoint's `API_TOKEN` CLI argument.
 - Why the DNS-rebinding flag: Railway's healthcheck probes the container from an internal address whose `Host` header is not the public domain. With the check on, every probe gets HTTP 421 and the deploy fails. Railway's edge already routes only the configured domain to the service, so the check adds nothing here. `MCP_ALLOWED_HOSTS` is then unused and can be dropped.
 
 `Postgres`
 - Railway's `postgres-ssl` image with a volume at `/var/lib/postgresql/data`. Unchanged.
+- The observed standard service source is `ghcr.io/railwayapp-templates/postgres-ssl:18`, with
+  `PGDATA=/var/lib/postgresql/data/pgdata`; no explicit SSL-mode variables or URL query arguments.
+  The source tag is mutable, so record the resolved image identity during an actual rollout.
+
+The documented default auth flags are false. Removing the API's public domain only makes that
+service private; it does not authenticate public MCP callers. An MCP backend credential is not an
+MCP transport guard. Restrict MCP exposure or configure an authenticated gateway separately.
+URL/database ingestion opt-ins belong on the API service and remain unset by default; see README.
 
 ### Variables for `cognee-api`
 
